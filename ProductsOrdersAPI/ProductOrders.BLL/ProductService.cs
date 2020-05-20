@@ -31,7 +31,7 @@ namespace ProductsOrders.BLL
             var ret = new ServiceResponse<Product>();
             try
             {
-                var exist = _productRepository.Get(obj.Name, obj.Desc).GetAwaiter().GetResult() != null;
+                var exist = await _productRepository.Get(obj.Name, obj.Desc) != null;
 
                 if (exist)
                 {
@@ -93,11 +93,11 @@ namespace ProductsOrders.BLL
           });
         }
 
-        public void Update(string id, Product obj)
+        public async Task UpdateAsync(string id, Product obj)
         {
             try
             {
-                _productRepository.Update(id, obj).GetAwaiter().GetResult();
+                await _productRepository.Update(id, obj);
 
                 if (_cache.TryGetValue(ProductCacheKey, out List<Product> _products))
                 {

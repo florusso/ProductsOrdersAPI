@@ -10,7 +10,7 @@ namespace ProductsOrders.BLL
     {
         Task<ServiceResponse<Product>> CreateAsync(Product obj);
 
-        void Update(string id, Product obj);
+        Task UpdateAsync(string id, Product obj);
 
         void Delete(string id);
 

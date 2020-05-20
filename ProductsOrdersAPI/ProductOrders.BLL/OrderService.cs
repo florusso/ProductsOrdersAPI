@@ -63,23 +63,18 @@ namespace ProductsOrders.BLL
                     ret.ResponseMessage = $"Il totale dell'ordine è inferiore a euro: {MinOrderAmount}";
                     return ret;
                 }
-                //  var session = _orderpository.OpenTransactionAsync().GetAwaiter().GetResult();
-                /* NB: non essendo riuscito a gestire la doppia transazione in MongoDB
-                 * ho deciso di effetturare almeno la seconda operazione sotto transazione
-                 * e quindi effettuarla come prima  operazione
-                 * se va bene allora inserisco l'ordine
-                 */
-                if (await _productService.UpdateProductsAmountAsync(order.OrderProducts))
+                try
                 {
-                    _orderpository.Create(order).GetAwaiter().GetResult();
-                    //  _orderpository.CommitTransaction(session);
+                    await _orderpository.Create(order);
                 }
-                else
+                catch (Exception)
                 {
-                    // _orderpository.AbortTransaction(session);
+                    throw;
                 }
 
-                double Total = CalcTotalOrder(order);
+                await _productService.UpdateProductsAmountAsync(order.OrderProducts);
+
+                double Total = await CalcTotalOrderAsync(order);
                 ret.IsSuccess = true;
                 ret.ResponseMessage = "Ok";
                 ret.ResponseObject = order;
@@ -91,7 +86,7 @@ namespace ProductsOrders.BLL
             return ret;
         }
 
-        private double CalcTotalOrder(Order order)
+        private async Task<double> CalcTotalOrderAsync(Order order)
         {
             double total = 0;
             double summation = 0;
@@ -99,7 +94,7 @@ namespace ProductsOrders.BLL
             summation = order.OrderProducts.Sum(s => s.Price * s.Amount);
             try
             {
-                total = _invoiceRuleService.Apply(order.CustomerCode, summation);
+                total = await _invoiceRuleService.ApplyAsync(order.CustomerCode, summation);
             }
             catch (Exception)
             {

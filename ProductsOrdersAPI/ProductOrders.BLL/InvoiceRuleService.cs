@@ -3,6 +3,7 @@ using ProductsOrders.DAL.Repository.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ProductsOrders.BLL
 {
@@ -15,9 +16,9 @@ namespace ProductsOrders.BLL
             _invoiceRuleRepository = invoiceRuleRepository;
         }
 
-        public double Apply(int CustomerCode, double summation)
+        public async Task<double> ApplyAsync(int CustomerCode, double summation)
         {
-            var rule = _invoiceRuleRepository.Get(CustomerCode).GetAwaiter().GetResult();
+            var rule = await _invoiceRuleRepository.Get(CustomerCode);
             double bill = 0;
 
             switch (rule.Operator)

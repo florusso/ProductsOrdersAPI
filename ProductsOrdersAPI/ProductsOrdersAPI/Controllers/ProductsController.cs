@@ -26,19 +26,19 @@ namespace ProductsOrdersAPI.Controllers
 
         // GET: api/Products
         [HttpGet]
-        public IEnumerable<Product> Get()
+        public async Task<IEnumerable<Product>> GetAsync()
 
         {
             _logger.LogInformation(" GET: api/Products");
-            return _productService.Get().GetAwaiter().GetResult();
+            return await _productService.Get();
         }
 
         // GET: api/Products/5
         [HttpGet("{id}", Name = "Get")]
-        public Product Get(string id)
+        public async Task<Product> GetAsync(string id)
         {
             _logger.LogInformation($"GET: api/Products/{id}");
-            return _productService.Get(id).GetAwaiter().GetResult();
+            return await _productService.Get(id);
         }
 
         // POST: api/Products

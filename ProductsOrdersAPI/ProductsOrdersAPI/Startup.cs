@@ -34,7 +34,7 @@ namespace ProductsOrdersAPI
             services.AddMemoryCache();
             services.Configure<Mongosettings>(options => Configuration.GetSection("Mongosettings").Bind(options));
 
-            services.AddScoped<IMongoDBContext, MongoDBContext>();
+            services.AddSingleton<IMongoDBContext, MongoDBContext>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IOrderepository, OrderRepository>();
