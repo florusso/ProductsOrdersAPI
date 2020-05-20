@@ -8,7 +8,7 @@ namespace ProductsOrders.BLL
 {
     public interface IProductService
     {
-        ServiceResponse<Product> Create(Product obj);
+        Task<ServiceResponse<Product>> CreateAsync(Product obj);
 
         void Update(string id, Product obj);
 
@@ -18,8 +18,9 @@ namespace ProductsOrders.BLL
 
         Task<IEnumerable<Product>> Get();
 
-        bool HasTotProduct(string id, int amount);
+        // async Task<bool> HasTotProductAsync
+        Task<bool> UpdateProductsAmountAsync(List<OrderProduct> orderProducts);
 
-        bool UpdateProductsAmount(List<OrderProduct> orderProducts);
+        Task<bool> HasTotProductAsync(string id, int amount);
     }
 }

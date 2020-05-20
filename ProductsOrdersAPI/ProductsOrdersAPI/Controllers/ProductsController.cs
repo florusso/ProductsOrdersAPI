@@ -43,13 +43,13 @@ namespace ProductsOrdersAPI.Controllers
 
         // POST: api/Products
         [HttpPost]
-        public Product Post([FromBody] Product product)
+        public async Task<Product> PostAsync([FromBody] Product product)
         {
             var ret = new ServiceResponse<Product>();
             try
             {
                 product.Id = null;
-                ret = _productService.Create(product);
+                ret = await _productService.CreateAsync(product);
             }
             catch (Exception ex)
             {

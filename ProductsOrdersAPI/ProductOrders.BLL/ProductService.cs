@@ -26,7 +26,7 @@ namespace ProductsOrders.BLL
             _cache = cache;
         }
 
-        public ServiceResponse<Product> Create(Product obj)
+        public async Task<ServiceResponse<Product>> CreateAsync(Product obj)
         {
             var ret = new ServiceResponse<Product>();
             try
@@ -49,7 +49,7 @@ namespace ProductsOrders.BLL
                     return ret;
                 }
 
-                _productRepository.Create(obj).GetAwaiter().GetResult();
+                await _productRepository.Create(obj);
                 ret.IsSuccess = true;
                 ret.ResponseMessage = "Ok";
                 ret.ResponseObject = obj;
@@ -78,20 +78,18 @@ namespace ProductsOrders.BLL
             var _products = _cache.GetOrCreateAsync(ProductCacheKey, entry =>
                {
                    return _productRepository.Get();
-               }).GetAwaiter().GetResult();
+               });
 
-            p = _products.FirstOrDefault(p => p.Id == id);
+            p = _products.Result.FirstOrDefault(p => p.Id == id);
 
-            if (p is null)
-                return _productRepository.Get(id);
-            else return Task.FromResult(p);
+            return Task.FromResult(p);
         }
 
         public Task<IEnumerable<Product>> Get()
         {
             return _cache.GetOrCreateAsync(ProductCacheKey, entry =>
           {
-              return Task.FromResult(_productRepository.Get().GetAwaiter().GetResult());
+              return _productRepository.Get();
           });
         }
 
@@ -119,9 +117,9 @@ namespace ProductsOrders.BLL
             }
         }
 
-        public bool HasTotProduct(string id, int amount)
+        public async Task<bool> HasTotProductAsync(string id, int amount)
         {
-            var products = Get().GetAwaiter().GetResult();
+            var products = await Get();
 
             var prod = products.SingleOrDefault(s => s.Id == id);
 
@@ -130,14 +128,14 @@ namespace ProductsOrders.BLL
             return prod.StockAmount >= amount;
         }
 
-        public bool UpdateProductsAmount(List<OrderProduct> orderProducts)
+        public async Task<bool> UpdateProductsAmountAsync(List<OrderProduct> orderProducts)
         {
             if (_productRepository.UpdateProductsAmount(orderProducts))
             {
-                var _products = _cache.GetOrCreateAsync(ProductCacheKey, entry =>
+                var _products = await _cache.GetOrCreateAsync(ProductCacheKey, entry =>
                 {
                     return _productRepository.Get();
-                }).GetAwaiter().GetResult();
+                });
 
                 foreach (var item in orderProducts)
                 {

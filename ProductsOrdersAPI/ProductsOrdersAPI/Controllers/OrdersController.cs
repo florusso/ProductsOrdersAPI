@@ -27,23 +27,26 @@ namespace ProductsOrdersAPI.Controllers
 
         //// GET: api/Orders
         [HttpGet]
-        public PagedList<Order> GetOrders([FromQuery] OrdersParameters ordersParameters)
+        public async Task<PagedList<Order>> GetOrdersAsync([FromQuery] OrdersParameters ordersParameters)
         {
-            return PagedList<Order>.ToPagedList(_orderService.Get().AsQueryable().OrderBy(on => on.CustomerCode),
+            var orders = await _orderService.GetAsync();
+            return PagedList<Order>.ToPagedList(
+                orders.AsQueryable().OrderBy(on => on.CustomerCode),
                 ordersParameters.PageNumber,
-                ordersParameters.PageSize);
+                ordersParameters.PageSize
+                );
         }
 
         // POST: api/Orders
         [HttpPost]
-        public Order Post([FromBody] Order order)
+        public async Task<Order> PostAsync([FromBody] Order order)
         {
             var ret = new ServiceResponse<Order>();
 
             try
             {
                 order.Id = null;
-                ret = _orderService.Create(order);
+                ret = await _orderService.CreateAsync(order);
             }
             catch (Exception ex)
             {

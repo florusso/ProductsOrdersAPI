@@ -26,7 +26,7 @@ namespace ProductsOrders.BLL
             _invoiceRuleService = invoiceRuleService;
         }
 
-        public ServiceResponse<Order> Create(Order order)
+        public async Task<ServiceResponse<Order>> CreateAsync(Order order)
         {
             var ret = new ServiceResponse<Order>();
             try
@@ -48,7 +48,7 @@ namespace ProductsOrders.BLL
                 // la quantità dei prodotti ordinati deve essere presente a stock
                 foreach (var item in order.OrderProducts)
                 {
-                    if (!_productService.HasTotProduct(item.Id, item.Amount))
+                    if (!await _productService.HasTotProductAsync(item.Id, item.Amount))
                     {
                         ret.IsSuccess = false;
                         ret.ResponseMessage = $"la quantità richiesta di {item.Id} non sufficente o prodotto non presente.";
@@ -69,7 +69,7 @@ namespace ProductsOrders.BLL
                  * e quindi effettuarla come prima  operazione
                  * se va bene allora inserisco l'ordine
                  */
-                if (_productService.UpdateProductsAmount(order.OrderProducts))
+                if (await _productService.UpdateProductsAmountAsync(order.OrderProducts))
                 {
                     _orderpository.Create(order).GetAwaiter().GetResult();
                     //  _orderpository.CommitTransaction(session);
@@ -109,9 +109,9 @@ namespace ProductsOrders.BLL
             return total;
         }
 
-        public IEnumerable<Order> Get()
+        public async Task<IEnumerable<Order>> GetAsync()
         {
-            return _orderpository.Get().GetAwaiter().GetResult();
+            return await _orderpository.Get();
         }
     }
 }
